@@ -12,7 +12,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        return view('admin.user.index');
+        $users = User::all();
+        $roles = [
+            'admin' => 'Admin',
+            'kasir' => 'Kasir',
+        ];
+        return view('admin.user.index', compact('users', 'roles'));
     }
 
     /**
@@ -28,7 +33,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'username' => 'required|unique:users',
+            'password' => 'required|min:8',
+            'role' => 'required',
+            'nama' => 'required',
+            'isActive' => 'required'
+        ]);
+        $validated['password'] = bcrypt($validated['password']);
+        User::create($validated);
+        return redirect()->route('user.index')->with('success', 'Data berhasil ditambahkan');
     }
 
     /**
@@ -52,7 +66,19 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+        $validated = $request->validate([
+            'username' => 'required|unique:users',
+            'password' => 'min:8',
+            'role' => 'required',
+            'nama' => 'required',
+            'isActive' => 'required'
+        ]);
+        if ($validated['password'] == null) {
+            unset($validated['password']);
+        }
+        $validated['password'] = bcrypt($validated['password']);
+        $user->update($validated);
+        return redirect()->route('user.index')->with('success', 'Data berhasil diubah');
     }
 
     /**
@@ -60,7 +86,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        $user->delete();
+        return redirect()->route('user.index')->with('success', 'Data berhasil dihapus');
     }
 
     public function getRole()
