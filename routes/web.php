@@ -11,9 +11,9 @@ use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\TransaksiItemController;
 
 Route::get('/', function () {
-    return view('admin.user.index');
+    return redirect()->route('user.index');
     // return view('login');
-});
+})->middleware(['auth']);
 
 Route::get('login', [AuthController::class, 'login'])->name('login')->middleware(['guest']);
 Route::post('login', [AuthController::class, 'loginProses'])->name('loginProses')->middleware(['guest']);
