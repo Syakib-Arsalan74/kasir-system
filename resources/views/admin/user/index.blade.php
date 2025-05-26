@@ -576,10 +576,10 @@
                                     <tr class="bg-gray-50">
                                         <th
                                             class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Pengguna</th>
+                                            Full Name</th>
                                         <th
                                             class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Email</th>
+                                            Username</th>
                                         <th
                                             class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Role</th>
@@ -588,48 +588,49 @@
                                             Status</th>
                                         <th
                                             class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Login Terakhir</th>
-                                        <th
-                                            class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    <template x-for="user in filteredUsers()" :key="user.id">
+                                    @foreach ($users as $data)
                                         <tr class="hover:bg-gray-50 transition duration-150">
                                             <td class="py-4 px-6">
                                                 <div class="flex items-center">
                                                     <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold"
-                                                        x-text="getInitials(user.name)">AS</div>
+                                                        x-text="getInitials($data->nama)">
+                                                        {{ collect(explode(' ', $data->nama))->map(fn($word) => strtoupper(mb_substr($word, 0, 1)))->implode('') }}
+                                                    </div>
                                                     <div class="ml-4">
-                                                        <div class="font-medium text-gray-800" x-text="user.name">User
-                                                            Name</div>
+                                                        <div class="font-medium text-gray-800">
+                                                            {{ $data->nama }}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="py-4 px-6 text-sm text-gray-600" x-text="user.email">
-                                                user@email.com</td>
-                                            <td class="py-4 px-6">
-                                                <span
-                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                                    :class="user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                                                        'bg-blue-100 text-blue-800'"
-                                                    x-text="user.role === 'admin' ? 'Admin' : 'Kasir'">Role</span>
+                                            <td class="py-4 px-6 text-sm text-gray-600">
+                                                {{ $data->username }}
                                             </td>
                                             <td class="py-4 px-6">
                                                 <span
-                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                                    :class="{
-                                                        'badge-active': user.status === 'active',
-                                                        'badge-inactive': user.status === 'inactive',
-                                                        'badge-pending': user.status === 'pending'
-                                                    }"
-                                                    x-text="user.status === 'active' ? 'Aktif' : user.status === 'inactive' ? 'Tidak Aktif' : 'Menunggu'">Status</span>
+                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                    {{ $data->role == 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                                    {{ $data->role }}
+                                                </span>
                                             </td>
-                                            <td class="py-4 px-6 text-sm text-gray-500" x-text="user.lastLogin">-</td>
+                                            <td class="py-4 px-6">
+                                                <span
+                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                        {{ $data->isActive == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                    @if ($data->isActive == 1)
+                                                        Aktif
+                                                    @else
+                                                        Non Aktif
+                                                    @endif
+                                                </span>
+                                            </td>
                                             <td class="py-4 px-6">
                                                 <div class="flex space-x-2">
-                                                    <button @click="editUser(user)"
+                                                    <button @click="editUser({{ json_encode($data) }})"
                                                         class="text-indigo-600 hover:text-indigo-900" title="Edit">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -638,6 +639,7 @@
                                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                         </svg>
                                                     </button>
+
                                                     <button @click="toggleUserStatus(user)"
                                                         class="text-yellow-600 hover:text-yellow-900"
                                                         title="Toggle Status">
@@ -658,7 +660,7 @@
                                                                 d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                                         </svg>
                                                     </button>
-                                                    <button @click="prepareDelete(user)"
+                                                    <button @click="prepareDelete({{ $data->id }})"
                                                         class="text-red-600 hover:text-red-900" title="Hapus">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -667,10 +669,66 @@
                                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
                                                     </button>
+
+                                                    <!-- Delete Confirmation Modal -->
+                                                    <div x-show="showDeleteConfirmModal"
+                                                        class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
+                                                        x-transition:enter="transition ease-out duration-300"
+                                                        x-transition:enter-start="opacity-0"
+                                                        x-transition:enter-end="opacity-100"
+                                                        x-transition:leave="transition ease-in duration-200"
+                                                        x-transition:leave-start="opacity-100"
+                                                        x-transition:leave-end="opacity-0">
+                                                        <div @click.away="showDeleteConfirmModal = false"
+                                                            class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 mx-4"
+                                                            x-transition:enter="transition ease-out duration-300"
+                                                            x-transition:enter-start="transform scale-95 opacity-0"
+                                                            x-transition:enter-end="transform scale-100 opacity-100"
+                                                            x-transition:leave="transition ease-in duration-200"
+                                                            x-transition:leave-start="transform scale-100 opacity-100"
+                                                            x-transition:leave-end="transform scale-95 opacity-0">
+                                                            <div class="text-center">
+                                                                <div
+                                                                    class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="h-8 w-8 text-red-600" fill="none"
+                                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                    </svg>
+                                                                </div>
+                                                                <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                                                                    Konfirmasi Hapus Pengguna</h3>
+                                                                <p class="text-gray-600 mb-6">
+                                                                    Apakah Anda yakin ingin menghapus pengguna <span
+                                                                        class="font-semibold"
+                                                                        x-text="currentUser ? currentUser.name : ''"></span>?
+                                                                    Tindakan ini tidak dapat dibatalkan.
+                                                                </p>
+                                                                <div class="flex space-x-3">
+                                                                    <button
+                                                                        class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                                                                        Batal
+                                                                    </button>
+                                                                    <form class="flex-1"
+                                                                        action="{{ route('user.destroy', $data->id) }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button
+                                                                            class="bg-red-600 w-full py-2 text-white rounded-lg hover:bg-red-700 transition duration-200">
+                                                                            Hapus
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
-                                    </template>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -741,29 +799,30 @@
                 </button>
             </div>
 
-            <form @submit.prevent="saveNewUser()">
-                <div class="space-y-4">
+            <form action="{{ route('user.store') }}" method="POST">
+                @csrf
+                <d class="space-y-4">
                     <!-- Name Field -->
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama
                             Lengkap</label>
-                        <input x-model="currentUser.name" type="text" id="name"
+                        <input x-model="currentUser.name" type="text" id="nama" name="nama"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                             placeholder="Masukkan nama lengkap" required>
                     </div>
 
-                    <!-- Email Field -->
+                    <!-- Username Field -->
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input x-model="currentUser.email" type="email" id="email"
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input x-model="currentUser.username" type="username" id="username" name="username"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="Masukkan email" required>
+                            placeholder="Masukkan Username" required>
                     </div>
 
                     <!-- Password Field -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input type="password" id="password"
+                        <input type="password" id="password" name="password"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                             placeholder="Masukkan password" required>
                     </div>
@@ -772,7 +831,7 @@
                     <div>
                         <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <div class="relative">
-                            <select x-model="currentUser.role" id="role"
+                            <select x-model="currentUser.role" id="role" name="role"
                                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
                                 required>
                                 <option value="" disabled>Pilih role</option>
@@ -793,13 +852,12 @@
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <div class="relative">
-                            <select x-model="currentUser.status" id="status"
+                            <select x-model="currentUser.status" id="status" name="isActive"
                                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
                                 required>
                                 <option value="" disabled>Pilih status</option>
-                                <option value="active">Aktif</option>
-                                <option value="inactive">Tidak Aktif</option>
-                                <option value="pending">Menunggu</option>
+                                <option value="1">Aktif</option>
+                                <option value="0">Tidak Aktif</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
@@ -812,23 +870,22 @@
                     </div>
 
                     <!-- Last Login Info (Read-only) -->
-                    <div>
+                    {{-- <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Login Terakhir</label>
                         <div class="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2 text-gray-500 text-sm"
                             x-text="currentUser.lastLogin">-</div>
-                    </div>
-                </div>
+                    </div> --}}
 
-                <div class="flex space-x-3 mt-6">
-                    <button type="button" @click="showAddUserModal = false"
-                        class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-200">
-                        Simpan
-                    </button>
-                </div>
+                    <div class="flex space-x-3 mt-6">
+                        <button type="button" @click="showAddUserModal = false"
+                            class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-200">
+                            Simpan
+                        </button>
+                    </div>
             </form>
         </div>
     </div>
@@ -846,7 +903,8 @@
             x-transition:leave-start="transform scale-100 opacity-100"
             x-transition:leave-end="transform scale-95 opacity-0">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-semibold text-gray-800">Edit Pengguna</h3>
+                <h3 class="text-lg font-semibold text-gray-800">Edit
+                    Pengguna</h3>
                 <button @click="showEditUserModal = false" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -856,35 +914,48 @@
                 </button>
             </div>
 
-            <form @submit.prevent="saveEditUser()">
+            <form :action="`{{ route('user.update', ':userId') }}`.replace(':userId', user.id)" method="POST">
+                @csrf
+                @method('put')
                 <div class="space-y-4">
                     <!-- Name Field -->
                     <div>
-                        <label for="edit-name" class="block text-sm font-medium text-gray-700 mb-1">Nama
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama
                             Lengkap</label>
-                        <input x-model="currentUser.name" type="text" id="edit-name"
+                        <input x-model="currentUser.nama" type="text" id="nama" name="nama"
+                            :value="user.nama"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                             placeholder="Masukkan nama lengkap" required>
                     </div>
 
-                    <!-- Email Field -->
+                    <!-- Username Field -->
                     <div>
-                        <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input x-model="currentUser.email" type="email" id="edit-email"
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input x-model="currentUser.username" type="username" id="username" name="username"
+                            :value="user.username"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="Masukkan email" required>
+                            placeholder="Masukkan Username" required>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="password" name="password"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Masukkan password">
                     </div>
 
                     <!-- Role Field -->
                     <div>
-                        <label for="edit-role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <div class="relative">
-                            <select x-model="currentUser.role" id="edit-role"
+                            <select x-model="currentUser.role" name="role" id="role"
                                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
                                 required>
-                                <option value="" disabled>Pilih role</option>
-                                <option value="admin">Admin</option>
-                                <option value="kasir">Kasir</option>
+                                <template x-for="role in roles" :key="role">
+                                    <option :value="role" x-text="role"
+                                        :selected="role === currentUser.role"></option>
+                                </template>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
@@ -898,15 +969,13 @@
 
                     <!-- Status Field -->
                     <div>
-                        <label for="edit-status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <div class="relative">
-                            <select x-model="currentUser.status" id="edit-status"
+                            <select x-model="currentUser.isActive" name="isActive" id="isActive"
                                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
                                 required>
-                                <option value="" disabled>Pilih status</option>
-                                <option value="active">Aktif</option>
-                                <option value="inactive">Tidak Aktif</option>
-                                <option value="pending">Menunggu</option>
+                                <option value="1" :selected="currentUser.isActive == 1">Aktif</option>
+                                <option value="0" :selected="currentUser.isActive == 0">Tidak Aktif</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
@@ -918,68 +987,21 @@
                         </div>
                     </div>
 
-                    <!-- Last Login Info (Read-only) -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Login Terakhir</label>
-                        <div class="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2 text-gray-500 text-sm"
-                            x-text="currentUser.lastLogin">-</div>
+                    <div class="flex space-x-3 mt-6">
+                        <button type="button" @click="showAddUserModal = false"
+                            class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-200">
+                            Simpan Perubahan
+                        </button>
                     </div>
-                </div>
-
-                <div class="flex space-x-3 mt-6">
-                    <button type="button" @click="showEditUserModal = false"
-                        class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-200">
-                        Simpan Perubahan
-                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div x-show="showDeleteConfirmModal" class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
-        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-        <div @click.away="showDeleteConfirmModal = false"
-            class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 mx-4"
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="transform scale-95 opacity-0"
-            x-transition:enter-end="transform scale-100 opacity-100"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="transform scale-100 opacity-100"
-            x-transition:leave-end="transform scale-95 opacity-0">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Konfirmasi Hapus Pengguna</h3>
-                <p class="text-gray-600 mb-6">
-                    Apakah Anda yakin ingin menghapus pengguna <span class="font-semibold"
-                        x-text="currentUser ? currentUser.name : ''"></span>? Tindakan ini tidak dapat dibatalkan.
-                </p>
-
-                <div class="flex space-x-3">
-                    <button @click="showDeleteConfirmModal = false"
-                        class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
-                        Batal
-                    </button>
-                    <button @click="deleteUser()"
-                        class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200">
-                        Hapus
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Reset Password Modal -->
     <div x-show="showResetPasswordModal" class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
