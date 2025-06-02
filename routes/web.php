@@ -20,8 +20,14 @@ Route::post('login', [AuthController::class, 'loginProses'])->name('loginProses'
 Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middleware(['auth']);
 
 Route::resource('user', UserController::class)->middleware(['auth']);
+Route::get('user/search', [UserController::class, 'search'])->name('user.search')->middleware(['auth']);
+
 Route::resource('pelanggan', PelangganController::class)->middleware(['auth']);
+Route::get('pelanggan/search', [PelangganController::class, 'searchByName'])->name('pelanggan.search')->middleware(['auth']);
+
 Route::resource('kategori', KategoriController::class)->middleware(['auth']);
+Route::get('kategori/search', [KategoriController::class, 'search'])->name('kategori.search')->middleware(['auth']);
+
 Route::resource('produk', ProdukController::class)->middleware(['auth']);
 Route::resource('transaksi', TransaksiController::class)->middleware(['auth']);
 Route::resource('transaksi-detail', TransaksiItemController::class)->middleware(['auth']);
