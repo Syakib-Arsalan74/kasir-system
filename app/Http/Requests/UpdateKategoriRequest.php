@@ -11,7 +11,7 @@ class UpdateKategoriRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,24 @@ class UpdateKategoriRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nama' => 'required|string|max:255|unique:kategoris,nama,' . $this->kategori->id,
+            'deskripsi' => 'required|string|max:1000',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'nama.required' => 'Nama kategori harus diisi',
+            'nama.unique' => 'Nama kategori sudah ada',
+            'nama.max' => 'Nama kategori maksimal 255 karakter',
+            'deskripsi.required' => 'Deskripsi harus diisi',
+            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter',
         ];
     }
 }
