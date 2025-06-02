@@ -14,7 +14,9 @@ class PelangganController extends Controller
      */
     public function index()
     {
-        //
+        $pelanggans = Pelanggan::all();
+        $totalPelanggan = Pelanggan::count();
+        return view('admin.pelanggan.index', compact(['pelanggans', 'totalPelanggan']));
     }
 
     /**
@@ -30,7 +32,12 @@ class PelangganController extends Controller
      */
     public function store(StorePelangganRequest $request)
     {
-        //
+        try {
+            Pelanggan::create($request->validated());
+            return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan pelanggan');
+        }
     }
 
     /**
@@ -54,7 +61,12 @@ class PelangganController extends Controller
      */
     public function update(UpdatePelangganRequest $request, Pelanggan $pelanggan)
     {
-        //
+        try {
+            $pelanggan->update($request->validated());
+            return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil diperbarui');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui pelanggan');
+        }
     }
 
     /**
@@ -62,7 +74,12 @@ class PelangganController extends Controller
      */
     public function destroy(Pelanggan $pelanggan)
     {
-        //
+        try {
+            $pelanggan->delete();
+            return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus pelanggan');
+        }
     }
 
     public function tambahPoint()
