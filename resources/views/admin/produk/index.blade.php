@@ -158,93 +158,53 @@
 
 <body class="bg-gray-50" x-data="{
     sidebarOpen: true,
-    activeTab: 'users',
+    activeTab: 'kategori',
     notifications: 5,
     showDropdown: false,
-    showAddUserModal: false,
-    showEditUserModal: false,
+    showAddKategoriModal: false,
+    showEditKategoriModal: false,
     showDeleteConfirmModal: false,
-    showResetPasswordModal: false,
-    currentUser: null,
+    currentKategori: null,
     searchQuery: '',
-    filterRole: 'all',
-    filterStatus: 'all',
 
     // Methods
-    addNewUser() {
-        this.currentUser = { id: null, name: '', email: '', role: 'kasir', status: 'active', lastLogin: 'Belum pernah', image: null };
-        this.showAddUserModal = true;
+    addNewKategori() {
+        this.currentKategori = { id: null, nama: '', deskripsi: '' };
+        this.showAddKategoriModal = true;
     },
 
-    editUser(user) {
-        this.currentUser = { ...user };
-        this.showEditUserModal = true;
+    editKategori(kategori) {
+        this.currentKategori = { ...kategori };
+        this.showEditKategoriModal = true;
     },
 
-    prepareDelete(user) {
-        this.currentUser = user;
+    prepareDelete(kategori) {
+        this.currentKategori = kategori;
         this.showDeleteConfirmModal = true;
     },
 
-    resetPassword(user) {
-        this.currentUser = user;
-        this.showResetPasswordModal = true;
+    saveNewKategori() {
+        this.showAddKategoriModal = false;
     },
 
-    toggleUserStatus(user) {
-        const index = this.users.findIndex(u => u.id === user.id);
-        if (index !== -1) {
-            this.users[index].status = user.status === 'active' ? 'inactive' : 'active';
-        }
+    saveEditKategori() {
+        this.showEditKategoriModal = false;
     },
 
-    saveNewUser() {
-        this.users.push({ ...this.currentUser });
-        this.showAddUserModal = false;
-    },
-
-    saveEditUser() {
-        const index = this.users.findIndex(u => u.id === this.currentUser.id);
-        if (index !== -1) {
-            this.users[index] = { ...this.currentUser };
-        }
-        this.showEditUserModal = false;
-    },
-
-    deleteUser() {
-        this.users = this.users.filter(u => u.id !== this.currentUser.id);
+    deleteKategori() {
         this.showDeleteConfirmModal = false;
     },
 
-    confirmResetPassword() {
-        // Simulasi reset password
-        this.showResetPasswordModal = false;
-    },
-
-    getInitials(name) {
-        if (!name) return '';
-        return name.split(' ').map(n => n[0]).join('').toUpperCase();
-    },
-
-    filteredUsers() {
-        return this.users.filter(user => {
-            // Filter by search query
-            const matchesSearch = this.searchQuery === '' ||
-                user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                user.email.toLowerCase().includes(this.searchQuery.toLowerCase());
-
-            // Filter by role
-            const matchesRole = this.filterRole === 'all' || user.role === this.filterRole;
-
-            // Filter by status
-            const matchesStatus = this.filterStatus === 'all' || user.status === this.filterStatus;
-
-            return matchesSearch && matchesRole && matchesStatus;
+    filteredKategori() {
+        return this.kategori.filter(k => {
+            return this.searchQuery === '' ||
+                k.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                k.deskripsi.toLowerCase().includes(this.searchQuery.toLowerCase());
         });
     }
 }" x-init="$nextTick(() => {
     // Initialize any necessary data or event listeners here
-    console.log('Alpine.js initialized');
+    console.log('Alpine.js initialized for kategori');
 })">
     <!-- Background blobs -->
     <div class="blob bg-blue-300/40 -top-96 -left-32 fixed"></div>
@@ -334,14 +294,16 @@
                     </a>
 
                     <!-- Pelanggan -->
-                    <a href="{{ route('pelanggan.index') }}"
-                        class="sidebar-link flex items-center px-4 py-3 text-gray-700 hover:text-indigo-600">
+                    <a href="#" @click.prevent="activeTab = 'customers'"
+                        class="sidebar-link flex items-center px-4 py-3 text-gray-700 hover:text-indigo-600"
+                        :class="{ 'active': activeTab === 'customers', 'justify-center': !sidebarOpen }">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="{ 'mr-3': sidebarOpen }"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <span class="font-medium transition-opacity duration-300">Pelanggan</span>
+                        <span class="font-medium transition-opacity duration-300"
+                            :class="{ 'opacity-0 w-0 overflow-hidden': !sidebarOpen }">Pelanggan</span>
                     </a>
 
                     <!-- Divider -->
@@ -582,53 +544,15 @@
                     <!-- Action Buttons & Filters -->
                     <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <button @click="addNewUser()"
+                            <button @click="addNewKategori()"
                                 class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg shadow-md shadow-indigo-200 flex items-center transition duration-300">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
-                                Tambah Pengguna
+                                Tambah Kategori
                             </button>
-                        </div>
-                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                            <div class="relative">
-                                <select name="role"
-                                    onchange="window.location.href='{{ route('user.index') }}?role='+this.value+'&status={{ request('status') }}'"
-                                    class="bg-white border border-gray-200 text-gray-700 py-2 pl-3 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 appearance-none text-sm">
-                                    <option value="">Semua Role</option>
-                                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin
-                                    </option>
-                                    <option value="kasir" {{ request('role') == 'kasir' ? 'selected' : '' }}>Kasir
-                                    </option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="relative">
-                                <select name="status"
-                                    onchange="window.location.href='{{ route('user.index') }}?status='+this.value+'&role={{ request('role') }}'"
-                                    class="bg-white border border-gray-200 text-gray-700 py-2 pl-3 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 appearance-none text-sm">
-                                    <option value="">Semua Status</option>
-                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif
-                                    </option>
-                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Tidak
-                                        Aktif</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -636,9 +560,9 @@
                     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                         <div class="p-6 border-b border-gray-100">
                             <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-gray-800">Daftar Pengguna</h3>
+                                <h3 class="font-semibold text-gray-800">Daftar Kategori</h3>
                                 <span class="text-sm text-gray-500">Total :
-                                    {{ $totalUser }} pengguna</span>
+                                    {{ $totalKategori }} kategori</span>
                             </div>
                         </div>
 
@@ -649,30 +573,21 @@
                                     <tr class="bg-gray-50">
                                         <th
                                             class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Full Name</th>
+                                            Nama Kategori</th>
                                         <th
                                             class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Username</th>
-                                        <th
-                                            class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Role</th>
-                                        <th
-                                            class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
+                                            Deskripsi</th>
                                         <th
                                             class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    @foreach ($users as $data)
+                                    @foreach ($kategori as $data)
                                         <tr class="hover:bg-gray-50 transition duration-150">
                                             <td class="py-4 px-6">
                                                 <div class="flex items-center">
-                                                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold"
-                                                        x-text="getInitials($data->nama)">
-                                                        {{ collect(explode(' ', $data->nama))->map(fn($word) => strtoupper(mb_substr($word, 0, 1)))->implode('') }}
-                                                    </div>
+
                                                     <div class="ml-4">
                                                         <div class="font-medium text-gray-800">
                                                             {{ $data->nama }}
@@ -681,56 +596,17 @@
                                                 </div>
                                             </td>
                                             <td class="py-4 px-6 text-sm text-gray-600">
-                                                {{ $data->username }}
-                                            </td>
-                                            <td class="py-4 px-6">
-                                                <span
-                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                            {{ $data->role == 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                                    {{ $data->role }}
-                                                </span>
-                                            </td>
-                                            <td class="py-4 px-6">
-                                                <span
-                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                {{ $data->isActive == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                    @if ($data->isActive == 1)
-                                                        Aktif
-                                                    @else
-                                                        Non Aktif
-                                                    @endif
-                                                </span>
+                                                {{ $data->deskripsi }}
                                             </td>
                                             <td class="py-4 px-6">
                                                 <div class="flex space-x-2">
-                                                    <button @click="editUser({{ json_encode($data) }})"
+                                                    <button @click="editKategori({{ json_encode($data) }})"
                                                         class="text-indigo-600 hover:text-indigo-900" title="Edit">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2"
                                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                        </svg>
-                                                    </button>
-
-                                                    <button @click="toggleUserStatus(user)"
-                                                        class="text-yellow-600 hover:text-yellow-900"
-                                                        title="Toggle Status">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                                        </svg>
-                                                    </button>
-                                                    <button @click="resetPassword(user)"
-                                                        class="text-green-600 hover:text-green-900"
-                                                        title="Reset Password">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                                         </svg>
                                                     </button>
                                                     <button @click="prepareDelete({{ $data->id }})"
@@ -780,11 +656,11 @@
                                                                     </div>
                                                                     <h3
                                                                         class="text-lg font-semibold text-gray-800 mb-2">
-                                                                        Konfirmasi Hapus Pengguna</h3>
+                                                                        Konfirmasi Hapus Kategori</h3>
                                                                     <p class="text-gray-600 mb-6">
-                                                                        Apakah Anda yakin ingin menghapus pengguna <span
+                                                                        Apakah Anda yakin ingin menghapus Kategori <span
                                                                             class="font-semibold"
-                                                                            x-text="currentUser ? currentUser.name : ''"></span>?
+                                                                            x-text="currentKategori ? currentKategori.nama : ''"></span>?
                                                                         Tindakan ini tidak dapat dibatalkan.
                                                                     </p>
                                                                     <div class="flex space-x-3">
@@ -793,7 +669,7 @@
                                                                             Batal
                                                                         </button>
                                                                         <form class="flex-1"
-                                                                            action="{{ route('user.destroy', $data->id) }}"
+                                                                            action="{{ route('kategori.destroy', $data->id) }}"
                                                                             method="POST">
                                                                             @csrf
                                                                             @method('DELETE')
@@ -816,7 +692,7 @@
                         </div>
 
                         <!-- Empty Table State -->
-                        <div class="p-8 text-center" x-show="filteredUsers().length === 0">
+                        <div class="p-8 text-center" x-show="filteredKategori().length === 0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400"
                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -824,7 +700,7 @@
                             </svg>
                             <p class="mt-2 text-sm text-gray-500">Tidak ada pengguna yang sesuai dengan filter Anda.
                             </p>
-                            <button @click="searchQuery = ''; filterRole = 'all'; filterStatus = 'all'"
+                            <button @click="searchQuery = '';"
                                 class="mt-4 px-4 py-2 text-sm text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-md transition duration-200">
                                 Reset Filter
                             </button>
@@ -833,8 +709,9 @@
 
                     <!-- Pagination -->
                     <div class="flex items-center justify-between">
-                        <p class="text-sm text-gray-500">Menampilkan 1 - {{ $totalUser }} dari {{ $totalUser }}
-                            pengguna</p>
+                        <p class="text-sm text-gray-500">Menampilkan 1 - {{ $totalKategori }} dari
+                            {{ $totalKategori }}
+                            kategori</p>
                         <div class="flex space-x-1">
                             <button
                                 class="px-3 py-1 text-sm bg-white text-gray-600 border border-gray-200 rounded-md disabled:opacity-50"
@@ -852,12 +729,13 @@
                 </div>
             </main>
 
-            <!-- Add User Modal -->
-            <div x-show="showAddUserModal" class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
+            <!-- Add Kategori Modal -->
+            <div x-show="showAddKategoriModal"
+                class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-                <div @click.away="showAddUserModal = false"
+                <div @click.away="showAddKategoriModal = false"
                     class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 mx-4"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="transform scale-95 opacity-0"
@@ -867,7 +745,7 @@
                     x-transition:leave-end="transform scale-95 opacity-0">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-semibold text-gray-800">Tambah Pengguna Baru</h3>
-                        <button @click="showAddUserModal = false" class="text-gray-500 hover:text-gray-700">
+                        <button @click="showAddKategoriModal = false" class="text-gray-500 hover:text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -876,12 +754,12 @@
                         </button>
                     </div>
 
-                    <form action="{{ route('user.store') }}" method="POST">
+                    <form action="{{ route('kategori.store') }}" method="POST">
                         @csrf
                         <div class="space-y-4">
                             <!-- Name Field -->
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama
+                                <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama
                                     Lengkap</label>
                                 <input type="text" id="nama" name="nama"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -890,75 +768,15 @@
 
                             <!-- Username Field -->
                             <div>
-                                <label for="username"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                <input type="username" id="username" name="username"
+                                <label for="deskripsi"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                                <input type="text" id="deskripsi" name="deskripsi"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    placeholder="Masukkan Username" required>
+                                    placeholder="Masukkan deskripsi" required>
                             </div>
-
-                            <!-- Password Field -->
-                            <div>
-                                <label for="password"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                <input type="password" id="password" name="password"
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    placeholder="Masukkan password" required>
-                            </div>
-
-                            <!-- Role Field -->
-                            <div>
-                                <label for="role"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                                <div class="relative">
-                                    <select id="role" name="role"
-                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
-                                        required>
-                                        <option value="" disabled>Pilih role</option>
-                                        <option value="admin">Admin</option>
-                                        <option value="kasir">Kasir</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Status Field -->
-                            <div>
-                                <label for="status"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <div class="relative">
-                                    <select id="status" name="isActive"
-                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
-                                        required>
-                                        <option value="" disabled>Pilih status</option>
-                                        <option value="1">Aktif</option>
-                                        <option value="0">Tidak Aktif</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Last Login Info (Read-only) -->
-                            {{-- <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Login Terakhir</label>
-                        <div class="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2 text-gray-500 text-sm"
-                            x-text="currentUser.lastLogin">-</div>
-                    </div> --}}
 
                             <div class="flex space-x-3 mt-6">
-                                <button type="button" @click="showAddUserModal = false"
+                                <button type="button" @click="showAddKategoriModal = false"
                                     class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
                                     Batal
                                 </button>
@@ -972,12 +790,13 @@
                 </div>
             </div>
 
-            <!-- Edit User Modal -->
-            <div x-show="showEditUserModal" class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
+            <!-- Edit Kategori Modal -->
+            <div x-show="showEditKategoriModal"
+                class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-                <div @click.away="showEditUserModal = false"
+                <div @click.away="showEditKategoriModal = false"
                     class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 mx-4"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="transform scale-95 opacity-0"
@@ -988,7 +807,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-semibold text-gray-800">Edit
                             Pengguna</h3>
-                        <button @click="showEditUserModal = false" class="text-gray-500 hover:text-gray-700">
+                        <button @click="showEditKategoriModal = false" class="text-gray-500 hover:text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -997,7 +816,7 @@
                         </button>
                     </div>
 
-                    <form :action="`/user/${currentUser.id}`" method="POST">
+                    <form :action="`/kategori/${currentKategori.id}`" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="space-y-4">
@@ -1005,74 +824,23 @@
                             <div>
                                 <label for="edit-nama" class="block text-sm font-medium text-gray-700 mb-1">Nama
                                     Lengkap</label>
-                                <input type="text" id="edit-nama" name="nama" x-model="currentUser.nama"
+                                <input type="text" id="edit-nama" name="nama" x-model="currentKategori.nama"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                     placeholder="Masukkan nama lengkap" required>
                             </div>
 
                             <!-- Username Field -->
                             <div>
-                                <label for="edit-username"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                <input type="text" id="edit-username" name="username"
-                                    x-model="currentUser.username"
+                                <label for="edit-deskripsi"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                                <input type="text" id="edit-deskripsi" name="deskripsi"
+                                    x-model="currentKategori.deskripsi"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    placeholder="Masukkan Username" required>
-                            </div>
-
-                            <!-- Password Field -->
-                            <div>
-                                <label for="edit-password"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                <input type="password" id="edit-password" name="password"
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    placeholder="Kosongkan jika tidak ingin mengubah password">
-                            </div>
-
-                            <!-- Role Field -->
-                            <div>
-                                <label for="edit-role"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                                <div class="relative">
-                                    <select id="edit-role" name="role" x-model="currentUser.role"
-                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
-                                        required>
-                                        <option value="admin">Admin</option>
-                                        <option value="kasir">Kasir</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Status Field -->
-                            <div>
-                                <label for="edit-status"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <div class="relative">
-                                    <select id="edit-status" name="isActive" x-model="currentUser.isActive"
-                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
-                                        required>
-                                        <option value="1">Aktif</option>
-                                        <option value="0">Tidak Aktif</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                </div>
+                                    placeholder="Masukkan deskripsi" required>
                             </div>
 
                             <div class="flex space-x-3 mt-6">
-                                <button type="button" @click="showEditUserModal = false"
+                                <button type="button" @click="showEditKategoriModal = false"
                                     class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
                                     Batal
                                 </button>
@@ -1081,90 +849,6 @@
                                     Simpan Perubahan
                                 </button>
                             </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Reset Password Modal -->
-            <div x-show="showResetPasswordModal"
-                class="fixed inset-0 flex items-center justify-center z-50 modal-backdrop"
-                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-                <div @click.away="showResetPasswordModal = false"
-                    class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 mx-4"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="transform scale-95 opacity-0"
-                    x-transition:enter-end="transform scale-100 opacity-100"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="transform scale-100 opacity-100"
-                    x-transition:leave-end="transform scale-95 opacity-0">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800">Reset Password</h3>
-                        <button @click="showResetPasswordModal = false" class="text-gray-500 hover:text-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <form @submit.prevent="confirmResetPassword()">
-                        <div class="space-y-4">
-                            <!-- User Info -->
-                            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold mr-3"
-                                    x-text="currentUser ? getInitials(currentUser.name) : ''">AS</div>
-                                <div>
-                                    <p class="font-medium text-gray-800" x-text="currentUser ? currentUser.name : ''">
-                                        User
-                                        Name</p>
-                                    <p class="text-sm text-gray-500" x-text="currentUser ? currentUser.email : ''">
-                                        user@email.com</p>
-                                </div>
-                            </div>
-
-                            <!-- New Password Field -->
-                            <div>
-                                <label for="new-password"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Password
-                                    Baru</label>
-                                <input type="password" id="new-password"
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    placeholder="Masukkan password baru" required>
-                            </div>
-
-                            <!-- Confirm Password Field -->
-                            <div>
-                                <label for="confirm-password"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi
-                                    Password</label>
-                                <input type="password" id="confirm-password"
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    placeholder="Konfirmasi password baru" required>
-                            </div>
-
-                            <!-- Send Email Notification Option -->
-                            <div class="flex items-center">
-                                <input type="checkbox" id="send-notification"
-                                    class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                <label for="send-notification" class="ml-2 block text-sm text-gray-700">
-                                    Kirim notifikasi ke email pengguna
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="flex space-x-3 mt-6">
-                            <button type="button" @click="showResetPasswordModal = false"
-                                class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
-                                Batal
-                            </button>
-                            <button type="submit"
-                                class="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-200">
-                                Reset Password
-                            </button>
                         </div>
                     </form>
                 </div>
@@ -1194,7 +878,7 @@
         <div x-show="showQuickActions" @click.away="showQuickActions = false"
             class="absolute bottom-16 left-0 mb-2 bg-white rounded-lg shadow-xl p-3 w-48">
             <div class="space-y-2">
-                <button @click="addNewUser(); showQuickActions = false"
+                <button @click="addNewKategori(); showQuickActions = false"
                     class="w-full flex items-center p-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
